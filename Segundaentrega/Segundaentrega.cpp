@@ -41,9 +41,9 @@ HINSTANCE hInstanceGlobal = 0;
 HWND hHome = 0;
 
 //declaracion de funciones
-Productos* nuevoProducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto);
-Envios* nuevoEnvio(string direccion, string fechadeenvio, string estatusdelenvio);
-Usuarios* nuevoUsuario(string nombreusuario, string contraseña, string nombrevendedor, string aliasempresa, string fotovendedor);
+/*Productos* nuevoProducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto);
+Envios* nuevoEnvio(string direccion, string fechadeenvio, string estatusdelenvio);*/
+Usuarios* nuevoUsuario(Usuarios* usuario);
 void agregarproductoalinicio(Productos* producto);
 void agregarproductoalmedio(Productos* producto, string nombre);
 void agregarproductoalfinal(Productos* producto);
@@ -70,38 +70,6 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_COMMAND: {
 		switch (LOWORD(wParam)) {
-		case BTN_CARGARIMAGEN: {
-			OPENFILENAME ofn; // common dialog box structure
-			char szFile[260]; // buffer for file name
-			HANDLE hf; // file handle
-			// Initialize OPENFILENAME
-			ZeroMemory(&ofn, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFile = szFile;
-			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
-			// use the contents of szFile to initialize itself
-			ofn.lpstrFile[0] = '\0';
-			ofn.nMaxFile = sizeof(szFile);
-			ofn.lpstrFilter = "Bitmap\0 * .bmp";
-			ofn.nFilterIndex = 2;
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-			if (GetOpenFileName(&ofn) == true) {
-				SetWindowText(GetDlgItem(hWnd, TXT_RUTAVENDEDOR), ofn.lpstrFile);
-			}
-			else {
-				MessageBox(0, "No eligio archivo ", "Aviso", MB_OK | MB_ICONINFORMATION);
-			}
-			Usuarios* usuario = new Usuarios;
-			GetDlgItemText(hWnd, TXT_RUTAVENDEDOR, usuario->fotovendedor, 255);
-            static HBITMAP bmp = (HBITMAP)LoadImage(NULL, usuario->fotovendedor, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
-			SendDlgItemMessage(hWnd, PC_INFORMACIONVENDEDOR, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-			break;
-		}
 		case BTN_CARGARIMAGEN2: {
 			OPENFILENAME ofn; // common dialog box structur e
 			char szFile[260]; // buffer for file name
@@ -170,6 +138,38 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			HWND InformacionVendedor = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_INFORMACIONVENDEDOR), NULL, callback3);
 			UpdateWindow(InformacionVendedor);
 			ShowWindow(InformacionVendedor, SW_SHOW);
+			break;
+		}
+		case BTN_CARGARIMAGEN: {
+			OPENFILENAME ofn; // common dialog box structure
+			char szFile[260]; // buffer for file name
+			HANDLE hf; // file handle
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
+			// use the contents of szFile to initialize itself
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "Bitmap\0 * .bmp";
+			ofn.nFilterIndex = 2;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			if (GetOpenFileName(&ofn) == true) {
+				SetWindowText(GetDlgItem(hWnd, TXT_RUTAVENDEDOR), ofn.lpstrFile);
+			}
+			else {
+				MessageBox(0, "No eligio archivo ", "Aviso", MB_OK | MB_ICONINFORMATION);
+			}
+			Usuarios* usuario = new Usuarios;
+			GetDlgItemText(hWnd, TXT_RUTAVENDEDOR, usuario->fotovendedor, 255);
+			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, usuario->fotovendedor, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
+			SendDlgItemMessage(hWnd, PC_INFORMACIONVENDEDOR, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
 			break;
 		}
 		case ID_PRODUCTOS_NUEVOPRODUCTO: {
@@ -270,14 +270,26 @@ BOOL CALLBACK cRegistroUsuario(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			Usuarios* usuario = new Usuarios;
 			GetDlgItemText(hWnd, TXT_USUARIOREGISTRO, usuario->nombreusuario, 255);
 			GetDlgItemText(hWnd, TXT_PASSWORDREGISTRO, usuario->contraseña, 255);
-			MessageBox(NULL, "Ya puedes empezar a comprar o vender", "Registro completado", MB_OK);
-			MessageBox(hWnd, usuario->nombreusuario, "Nombre de usuario", 0);
-			MessageBox(hWnd, usuario->contraseña, "Contraseña", 0);
-			//Usuarios* usuario=nuevoUsuario(usuario->nombreusuario, usuario->contraseña);
-			//Se guardan los datos del usuario
+			if (string(usuario->nombreusuario) == ("")) {
+				MessageBox(NULL, "Nombre vacio", "Error", MB_OK);
+			}
+			else if (string(usuario->contraseña) == ("")) {
+				MessageBox(NULL, "Contraseña vacia", "Error", MB_OK);
+			}
+			else {
+				bool esLetras=soloLetras(usuario->nombreusuario);
+				if (soloLetras(usuario->nombreusuario) == true) {
+					Usuarios* nuevoUsuario(Usuarios * usuario); //Se guardan los datos del usuario
+					MessageBox(NULL, "Ya puedes empezar a comprar o vender", "Registro completado", MB_OK);
+				}
+				else {
+					MessageBox(NULL, "El nombre de usuario solo debe contener letras", "Error", MB_OK);
+				}
+			}
+			//MessageBox(hWnd, usuario->nombreusuario, "Nombre de usuario", 0);
+	     	//MessageBox(hWnd, usuario->contraseña, "Contraseña", 0);
 			break;
 		}
-
 		default:
 			break;
 		}
@@ -345,7 +357,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR cmd, int 
 } 
 
 //funciones
-Productos* nuevoProducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto) {
+/*Productos* nuevoProducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto) {
 	Productos* producto = new Productos;
 	strcpy_s(producto->nombre, 255, nombre.c_str());
 	strcpy_s(producto->foto, 255, foto.c_str());
@@ -367,15 +379,24 @@ Envios* nuevoEnvio(string direccion, string fechadeenvio, string estatusdelenvio
 	envio->anterior = NULL;
 	envio->siguiente = NULL;
 	return envio;
-}
-Usuarios* nuevoUsuario(string nombreusuario, string contraseña, string nombrevendedor, string aliasempresa, string fotovendedor) {
-	Usuarios* usuario = new Usuarios;
-	strcpy_s(usuario->nombreusuario, 255, nombreusuario.c_str());
+}*/
+Usuarios* nuevoUsuario(Usuarios*usuario) {
+	/*strcpy_s(usuario->nombreusuario, 255, nombreusuario.c_str());
 	strcpy_s(usuario->contraseña, 255, contraseña.c_str());
 	strcpy_s(usuario->nombrevendedor, 255, nombrevendedor.c_str());
 	strcpy_s(usuario->nombrevendedor, 255, nombrevendedor.c_str());
 	strcpy_s(usuario->aliasempresa, 255, aliasempresa.c_str());
-	strcpy_s(usuario->fotovendedor, 255, fotovendedor.c_str());
+	strcpy_s(usuario->fotovendedor, 255, fotovendedor.c_str());*/
+	if (origenUsuarios == NULL) {
+		origenUsuarios = usuario;
+	}
+	else {
+		Usuarios* indice = origenUsuarios;
+		while (indice->siguiente != NULL)
+			indice = indice->siguiente;
+		indice->siguiente = usuario;
+		usuario->anterior = indice;
+	}
 	usuario->anterior = NULL;
 	usuario->siguiente = NULL;
 	return usuario;
