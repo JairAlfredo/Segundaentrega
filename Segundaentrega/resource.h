@@ -34,8 +34,12 @@
 #define BTN_REGRESAR                    1003
 #define IDC_EDIT3                       1004
 #define IDC_EDIT7                       1005
+#define TXT_CODIGOEDITADO               1005
 #define IDC_EDIT8                       1006
+#define TXT_DESCRIPCIONEDITADA          1007
 #define TXT_PASSWORDREGISTRO            1008
+#define IDC_EDIT10                      1008
+#define TXT_MONTOEDITADO                1008
 #define IDC_STATIC4                     1010
 #define BTN_ALTAVENDEDOR                1011
 #define BTN_EDITARVENDEDOR              1012
@@ -47,9 +51,8 @@
 #define BTN_CARGARIMAGEN                1021
 #define BTN_CARGARIMAGEN2               1022
 #define BTN_ELIMINARPRODUCTO            1023
-#define IDCONFIRMAR                     1025
+#define BTN_CONFIRMAREDICION            1025
 #define BTN_SALIR1                      1026
-#define IDREGISTRAR                     1027
 #define BTN_REGISTRAR                   1027
 #define IDC_BUTTON1                     1028
 #define BTN_SALIR2                      1029
@@ -81,6 +84,9 @@
 #define TXT_BUSCARNOMBRE                1059
 #define BTN_MOSTRAR                     1060
 #define TXT_CARACTERISTICAS             1061
+#define TXT_EDITARPRODUCTO              1062
+#define TXT_NOMBREEDITADO               1064
+#define TXT_MARCAEDITADA                1065
 #define ID_INFORMACI32771               32771
 #define ID_INFORMACI32772               32772
 #define ID_INFORMACI32773               32773
@@ -107,7 +113,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1062
+#define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

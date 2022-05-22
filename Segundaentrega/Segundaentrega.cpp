@@ -54,7 +54,7 @@ void agregarproductoalmedio(Productos* producto, string nombre);
 /*void agregarproductoalfinal(Productos* producto);*/
 void borrarproductoalmedio(string nombre);
 void borrarproductoalfinal();
-void modificarproducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion);
+void modificarproducto(string nombre, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion);
 void guardararchivoproductos();
 void leerarchivoproductos();
 /*void imprime(Productos* lista);*/
@@ -239,16 +239,29 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		}
 		case BTN_MOSTRAR: {
 			char nombre[255];
-			GetDlgItemText(hWnd, TXT_NOMBREDELPRODUCTO, nombre, 255);
+			GetDlgItemText(hWnd, TXT_BUSCARNOMBRE, nombre, 255);
 			bool encontrarProducto = buscarProducto(nombre);
 			if (buscarProducto(nombre) ==true) {
-				
-			/*	SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->nombre);
+			/*SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->nombre);
 				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->cantidad);
 				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->codigoproducto);
 				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->marca);
 				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->descripcion);
 				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->monto);*/
+				Productos* indice = origenProductos;
+				while (indice != NULL) {
+					char cantidadeditada[255], codigoeditado[255], montoeditado[255];
+					 _itoa_s(indice->cantidad, cantidadeditada,2);
+					 _itoa_s(indice->codigoproducto, codigoeditado,2 );
+					_gcvt_s(montoeditado,255,indice->monto, 12);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)indice->nombre); 
+					  SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)cantidadeditada);
+					  SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)codigoeditado);
+					  SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)indice->marca);
+					  SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)indice->descripcion);
+					  SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)montoeditado);
+					indice = indice->siguiente;
+				}
 			}
 			else {
 				MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
@@ -262,6 +275,22 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			HWND EditarProducto = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_EDITARPRODUCTO), NULL, callback3);
 			UpdateWindow(EditarProducto);
 			ShowWindow(EditarProducto, SW_SHOW);
+			break;
+		}
+		case BTN_CONFIRMAREDICION: {
+			char nombreoriginal[255], nombreeditado[255],codigoeditado[255],marcaeditada[255],descripcioneditada[255],montoeditado[255];
+			GetDlgItemText(hWnd, TXT_EDITARPRODUCTO, nombreoriginal, 255);
+			GetDlgItemText(hWnd, TXT_NOMBREEDITADO, nombreeditado, 255);
+			GetDlgItemText(hWnd, TXT_CODIGOEDITADO, codigoeditado, 255);
+			GetDlgItemText(hWnd, TXT_MARCAEDITADA, marcaeditada, 255);
+			GetDlgItemText(hWnd, TXT_DESCRIPCIONEDITADA, descripcioneditada, 255);
+			GetDlgItemText(hWnd, TXT_MONTOEDITADO, montoeditado, 255);
+			int num;
+			float num2;
+			num = atoi(codigoeditado);
+			num2 = atof(montoeditado);
+			modificarproducto(nombreeditado, num,marcaeditada, descripcioneditada, num2, nombreoriginal);
+			//string nombre, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion
 			break;
 		}
 		//Ventana mostrar productos
@@ -577,9 +606,8 @@ void borrarproductoalmedio(string nombre) {
 		}
 		if (encontrado) {
 			if (indice->anterior == NULL) {
-				origenProductos = indice->siguiente;
-				origenProductos->anterior = NULL;
 				delete indice;
+				origenProductos = NULL;
 			}
 			else {
 				if (indice->siguiente == NULL) {
@@ -618,8 +646,9 @@ void borrarproductoalfinal() {
 		}
 	}
 }
-void modificarproducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion) {
+void modificarproducto(string nombre, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion) {
 	if (origenProductos == NULL) {
+		MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
 		return;
 	}
 	else {
@@ -634,13 +663,11 @@ void modificarproducto(string nombre, int cantidad, string foto, string foto2, i
 		}
 		if (encontrado) {
 			strcpy_s(indice->nombre, nombre.c_str());
-			indice->cantidad = cantidad;
-			strcpy_s(indice->foto, foto.c_str());
-			strcpy_s(indice->foto2, foto2.c_str());
 			indice->codigoproducto = codigoproducto;
 			strcpy_s(indice->marca, marca.c_str());
 			strcpy_s(indice->descripcion, descripcion.c_str());
 			indice->monto = monto;
+			MessageBox(0, "El producto ha sido modificado", "Aviso", MB_OK);
 		}
 	}
 
@@ -687,8 +714,6 @@ void leerarchivoproductos() {
 	while (indice != NULL) {
 		cout << "Nombre del producto: " << indice->nombre << endl;
 		cout << "Cantidad: " << indice->cantidad << endl;
-		cout << "Foto: " << indice->foto << endl;
-		cout << "Foto2: " << indice->foto2 << endl;
 		cout << "Codigo del producto: " << indice->codigoproducto << endl;
 		cout << "Marca:" << indice->marca << endl;
 		cout << "Descripcion:" << indice->descripcion << endl;
