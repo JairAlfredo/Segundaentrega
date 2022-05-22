@@ -1,9 +1,10 @@
 ﻿  Segundaentrega.cpp
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(94,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(125,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(164,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(77,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(109,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(147,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(562,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(96,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(159,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(190,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(218,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(79,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(142,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(174,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(668,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
   Segundaentrega.vcxproj -> C:\Users\Usuario\source\repos\Segundaentrega\Debug\Segundaentrega.exe

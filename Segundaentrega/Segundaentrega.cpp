@@ -1,4 +1,6 @@
 //bibliotecas
+#include <stdio.h>     
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <Windows.h>
@@ -35,104 +37,35 @@ struct Usuarios {
 	Usuarios* anterior;
 	Usuarios* siguiente;
 }*origenUsuarios;
-
+Usuarios usuarioLoggeado{};//para comparar usuario
+//
 //variables globales
 HINSTANCE hInstanceGlobal = 0;
 HWND hHome = 0;
-
+Usuarios* usuario = new Usuarios;
 //declaracion de funciones
-/*Productos* nuevoProducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto);
-Envios* nuevoEnvio(string direccion, string fechadeenvio, string estatusdelenvio);*/
-Usuarios* nuevoUsuario(Usuarios* usuario);
+Productos* nuevoProducto(Productos*producto);
+Envios* nuevoEnvio(string direccion, string fechadeenvio, string estatusdelenvio);
+Usuarios*nuevoUsuario(Usuarios* usuario);
+bool buscarUsuario(string nombreusuario,string contraseña, string nombrecondicion,string contraseñacondicion);
+bool buscarProducto(string nombre);
 void agregarproductoalinicio(Productos* producto);
 void agregarproductoalmedio(Productos* producto, string nombre);
-void agregarproductoalfinal(Productos* producto);
-void borraralumnoalmedio(string nombre);
-void borraralumnoalfinal();
+/*void agregarproductoalfinal(Productos* producto);*/
+void borrarproductoalmedio(string nombre);
+void borrarproductoalfinal();
 void modificarproducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion);
 void guardararchivoproductos();
 void leerarchivoproductos();
-void imprime(Productos* lista);
+/*void imprime(Productos* lista);*/
 bool soloLetras(string);
 bool fechaMenorAHoy(SYSTEMTIME hoy, SYSTEMTIME fecha);
-/*wstring s2ws(const string& s) {
-int len;
-int slength = (int)s.length() + 1;
-len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-wchar_t* buf = new wchar_t[len];
-MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-std::wstring r(buf);
-delete[] buf;
-return r;
-}*/
 //callbacks
 BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 	case WM_COMMAND: {
 		switch (LOWORD(wParam)) {
-		case BTN_CARGARIMAGEN2: {
-			OPENFILENAME ofn; // common dialog box structur e
-			char szFile[260]; // buffer for file name
-			HANDLE hf; // file handle
-			// Initialize OPENFILENAME
-			ZeroMemory(&ofn, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFile = szFile;
-			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
-			// use the contents of szFile to initialize itself
-			ofn.lpstrFile[0] = '\0';
-			ofn.nMaxFile = sizeof(szFile);
-			ofn.lpstrFilter = "Bitmap\0 * .bmp";
-			ofn.nFilterIndex = 2;
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-			if (GetOpenFileName(&ofn) == true) {
-				SetWindowText(GetDlgItem(hWnd, TXT_RUTAPRODUCTO), ofn.lpstrFile);
-			}
-			else {
-				MessageBox(0, "No eligio archivo", "Aviso", MB_OK | MB_ICONINFORMATION);
-			}
-			Productos* producto = new Productos;
-			GetDlgItemText(hWnd, TXT_RUTAPRODUCTO, producto->foto, 255);
-			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, producto->foto, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
-			SendDlgItemMessage(hWnd, PC_PRODUCTO, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-			break;
-		}
-		case BTN_CARGARIMAGEN3: {
-			OPENFILENAME ofn; // common dialog box structur e
-			char szFile[260]; // buffer for file name
-			HANDLE hf; // file handle
-			// Initialize OPENFILENAME
-			ZeroMemory(&ofn, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFile = szFile;
-			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
-			// use the contents of szFile to initialize itself
-			ofn.lpstrFile[0] = '\0';
-			ofn.nMaxFile = sizeof(szFile);
-			ofn.lpstrFilter = "Bitmap\0 * .bmp";
-			ofn.nFilterIndex = 2;
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-			if (GetOpenFileName(&ofn) == true) {
-				SetWindowText(GetDlgItem(hWnd, TXT_RUTAPRODUCTO2), ofn.lpstrFile);
-			}
-			else {
-				MessageBox(0, "No eligio archivo", "Aviso", MB_OK | MB_ICONINFORMATION);
-			}
-			Productos* producto = new Productos;
-			GetDlgItemText(hWnd, TXT_RUTAPRODUCTO2, producto->foto2, 255);
-			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, producto->foto2, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
-			SendDlgItemMessage(hWnd, PC_PRODUCTO2, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
-			break;
-		}
+		//Ventana informacion del vendedor
 		case ID_INFORMACIONVENDEDOR: {
 			EndDialog(hWnd, 0);
 			HWND InformacionVendedor = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_INFORMACIONVENDEDOR), NULL, callback3);
@@ -164,14 +97,38 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				SetWindowText(GetDlgItem(hWnd, TXT_RUTAVENDEDOR), ofn.lpstrFile);
 			}
 			else {
-				MessageBox(0, "No eligio archivo ", "Aviso", MB_OK | MB_ICONINFORMATION);
+				MessageBox(0, "No eligio archivo ", "Error", MB_OK | MB_ICONINFORMATION);
 			}
-			Usuarios* usuario = new Usuarios;
 			GetDlgItemText(hWnd, TXT_RUTAVENDEDOR, usuario->fotovendedor, 255);
 			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, usuario->fotovendedor, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
 			SendDlgItemMessage(hWnd, PC_INFORMACIONVENDEDOR, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
 			break;
+		}	
+		case BTN_ALTAVENDEDOR: {
+			GetDlgItemText(hWnd, TXT_NOMBREDELVENDEDOR, usuario->nombrevendedor, 255);
+			GetDlgItemText(hWnd, TXT_ALIASDELAEMPRESA, usuario->aliasempresa, 255);
+			if (string(usuario->nombrevendedor) == ("") && string(usuario->aliasempresa) == ("")) {
+				MessageBox(NULL, "Nombre del vendedor y alias de la empresa vacios", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(usuario->nombrevendedor) == ("")) {
+				MessageBox(NULL, "Nombre del vendedor vacio", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(usuario->aliasempresa) == ("")) {
+				MessageBox(NULL, "Alias de la empresa vacio", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else {
+				bool esLetras = soloLetras(usuario->nombrevendedor);
+				if (soloLetras(usuario->nombrevendedor) == true) {
+					nuevoUsuario(usuario); //Se guardan los datos del usuario
+					MessageBox(NULL, "Ya puedes empezar a comprar o vender", "Aviso", MB_OK);
+				}
+				else {
+					MessageBox(NULL, "El nombre del vendedor solo debe contener letras", "Error", MB_OK | MB_ICONINFORMATION);
+				}
+			}
+			break;
 		}
+		 //Ventana nuevo producto
 		case ID_PRODUCTOS_NUEVOPRODUCTO: {
 			EndDialog(hWnd, 0);
 			HWND NuevoProducto = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_NUEVOPRODUCTO), NULL, callback3);
@@ -179,6 +136,94 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(NuevoProducto, SW_SHOW);
 			break;
 		}
+		case BTN_CARGARIMAGEN2: {
+			OPENFILENAME ofn; // common dialog box structur e
+			char szFile[260]; // buffer for file name
+			HANDLE hf; // file handle
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
+			// use the contents of szFile to initialize itself
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "Bitmap\0 * .bmp";
+			ofn.nFilterIndex = 2;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			if (GetOpenFileName(&ofn) == true) {
+				SetWindowText(GetDlgItem(hWnd, TXT_RUTAPRODUCTO), ofn.lpstrFile);
+			}
+			else {
+				MessageBox(0, "No eligio archivo", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			Productos* producto = new Productos;
+			GetDlgItemText(hWnd, TXT_RUTAPRODUCTO, producto->foto, 255);
+			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, producto->foto, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
+			SendDlgItemMessage(hWnd, PC_PRODUCTO, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
+			break;
+		}
+		case BTN_CARGARIMAGEN3: {
+			OPENFILENAME ofn; // common dialog box structur e
+			char szFile[260]; // buffer for file name
+			HANDLE hf; // file handle
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
+			// use the contents of szFile to initialize itself
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "Bitmap\0 * .bmp";
+			ofn.nFilterIndex = 2;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			if (GetOpenFileName(&ofn) == true) {
+				SetWindowText(GetDlgItem(hWnd, TXT_RUTAPRODUCTO2), ofn.lpstrFile);
+			}
+			else {
+				MessageBox(0, "No eligio archivo", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			Productos* producto = new Productos;
+			GetDlgItemText(hWnd, TXT_RUTAPRODUCTO2, producto->foto2, 255);
+			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, producto->foto2, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
+			SendDlgItemMessage(hWnd, PC_PRODUCTO2, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
+			break;
+		}
+		case BTN_AGREGARPRODUCTO: {
+		Productos* producto= new Productos;
+		int num;
+		int num2;
+		float num3;
+			char cantidad[255], codigoproducto[255], monto[255];
+			GetDlgItemText(hWnd, TXT_NOMBREDELPRODUCTO, producto->nombre, 255);
+			GetDlgItemText(hWnd, TXT_CANTIDADENINVENTARIO, cantidad, 255);
+			GetDlgItemText(hWnd, TXT_RUTAPRODUCTO, producto->foto, 255);
+			GetDlgItemText(hWnd, TXT_RUTAPRODUCTO2, producto->foto2, 255);
+			GetDlgItemText(hWnd, TXT_CODIGODELPRODUCTO, codigoproducto, 255);
+			GetDlgItemText(hWnd, TXT_MARCA, producto->marca, 255);
+			GetDlgItemText(hWnd, TXT_DESCRIPCION, producto->descripcion, 255);
+			GetDlgItemText(hWnd, TXT_MONTO, monto, 255);
+			num= atoi(cantidad);
+			num2 = atoi(codigoproducto);
+			num3= atof(monto);
+			producto->cantidad = num;
+			producto->codigoproducto = num2;
+			producto->monto = num3;
+			nuevoProducto(producto);
+			MessageBox(NULL, "Producto agregado", "Aviso", MB_OK);
+			break;
+		}
+		//Ventana eliminar producto
 		case ID_PRODUCTOS_ELIMINARPRODUCTO: {
 			EndDialog(hWnd, 0);
 			HWND EliminarProducto = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_ELIMINARPRODUCTO), NULL, callback3);
@@ -186,6 +231,32 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(EliminarProducto, SW_SHOW);
 			break;
 		}
+		case BTN_ELIMINARPRODUCTO: {
+			char nombre[255];
+			GetDlgItemText(hWnd, TXT_BUSCARNOMBRE, nombre, 255);
+			borrarproductoalmedio(nombre);
+			break;
+		}
+		case BTN_MOSTRAR: {
+			char nombre[255];
+			GetDlgItemText(hWnd, TXT_NOMBREDELPRODUCTO, nombre, 255);
+			bool encontrarProducto = buscarProducto(nombre);
+			if (buscarProducto(nombre) ==true) {
+				
+			/*	SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->nombre);
+				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->cantidad);
+				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->codigoproducto);
+				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->marca);
+				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->descripcion);
+				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->monto);*/
+			}
+			else {
+				MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+
+			break;
+		}
+		//Ventana  editar producto
 		case ID_PRODUCTOS_EDITARPRODUCTO: {
 			EndDialog(hWnd, 0);
 			HWND EditarProducto = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_EDITARPRODUCTO), NULL, callback3);
@@ -193,6 +264,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(EditarProducto, SW_SHOW);
 			break;
 		}
+		//Ventana mostrar productos
 		case ID_PRODUCTOS_MISPRODUCTOS: {
 			EndDialog(hWnd, 0);
 			HWND MisProductos = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_MISPRODUCTOS), NULL, callback3);
@@ -200,6 +272,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(MisProductos, SW_SHOW);
 			break;
 		}
+		//Ventana comprar productos
 		case ID_COMPRARPRODUCTOS: {
 			EndDialog(hWnd, 0);
 			HWND ComprarProductos = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_COMPRARPRODUCTOS), NULL, callback3);
@@ -207,6 +280,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(ComprarProductos, SW_SHOW);
 			break;
 		}
+		//Ventana cancelar envio
 		case ID_CANCELARUNENVIO: {
 			EndDialog(hWnd, 0);
 			HWND CancelarEnvio = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_CANCELARENVIO), NULL, callback3);
@@ -214,6 +288,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(CancelarEnvio, SW_SHOW);
 			break;
 		}
+        //Editar envio
 		case ID_EDITARUNENVIO: {
 			EndDialog(hWnd, 0);
 			HWND EditarEnvio = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_EDITARENVIO), NULL, callback3);
@@ -221,6 +296,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(EditarEnvio, SW_SHOW);
 			break;
 		}
+		//Mostrar envios
 		case ID_MISENVIOS: {
 			EndDialog(hWnd, 0);
 			HWND MisEnvios = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_MISENVIOS), NULL, callback3);
@@ -228,6 +304,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(MisEnvios, SW_SHOW);
 			break;
 		}
+		//Ventana salida
 		case ID_SALIRMENU: {
 			HWND SalirMenu = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_SALIR), NULL, callback3);
 			UpdateWindow(SalirMenu);
@@ -235,7 +312,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		case BTN_SALIR2: {
-			PostQuitMessage(0); //Salir
+			PostQuitMessage(0); //Se deben guardar los cambios realizados 
 			break;
 		}
 		case BTN_CANCELAR: {
@@ -261,33 +338,33 @@ BOOL CALLBACK cRegistroUsuario(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 	
 	case WM_COMMAND: {
 		switch (LOWORD(wParam)) {
-		case IDREGRESAR: {
+		case BTN_REGRESAR: {
 			EndDialog(hWnd, 0);
 			ShowWindow(hHome,SW_RESTORE);
 			break;
 		}
-		case IDREGISTRAR: {
-			Usuarios* usuario = new Usuarios;
+		case BTN_REGISTRAR: {
 			GetDlgItemText(hWnd, TXT_USUARIOREGISTRO, usuario->nombreusuario, 255);
 			GetDlgItemText(hWnd, TXT_PASSWORDREGISTRO, usuario->contraseña, 255);
-			if (string(usuario->nombreusuario) == ("")) {
-				MessageBox(NULL, "Nombre vacio", "Error", MB_OK);
+			if (string(usuario->nombreusuario) == ("")&& string(usuario->contraseña) == ("")) {
+			MessageBox(NULL, "Nombre de usuario y contraseña vacios", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(usuario->nombreusuario) == ("")) {
+				MessageBox(NULL, "Nombre vacio", "Error", MB_OK | MB_ICONINFORMATION);
 			}
 			else if (string(usuario->contraseña) == ("")) {
-				MessageBox(NULL, "Contraseña vacia", "Error", MB_OK);
+				MessageBox(NULL, "Contraseña vacia", "Error", MB_OK | MB_ICONINFORMATION);
 			}
 			else {
 				bool esLetras=soloLetras(usuario->nombreusuario);
 				if (soloLetras(usuario->nombreusuario) == true) {
-					Usuarios* nuevoUsuario(Usuarios * usuario); //Se guardan los datos del usuario
-					MessageBox(NULL, "Ya puedes empezar a comprar o vender", "Registro completado", MB_OK);
+				nuevoUsuario(usuario); //Se guardan los datos del usuario
+					MessageBox(NULL, "Se ha generado su cuenta", "Aviso", MB_OK);
 				}
 				else {
-					MessageBox(NULL, "El nombre de usuario solo debe contener letras", "Error", MB_OK);
+					MessageBox(NULL, "El nombre de usuario solo debe contener letras", "Error", MB_OK | MB_ICONINFORMATION);
 				}
 			}
-			//MessageBox(hWnd, usuario->nombreusuario, "Nombre de usuario", 0);
-	     	//MessageBox(hWnd, usuario->contraseña, "Contraseña", 0);
 			break;
 		}
 		default:
@@ -295,7 +372,6 @@ BOOL CALLBACK cRegistroUsuario(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 		break;
 	}
-
 	default:
 		break;
 	}
@@ -313,11 +389,20 @@ BOOL CALLBACK cHome(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) { //HWND 
 			break;
 		}
 		case BTN_INICIARSESION: {
-			EndDialog(hWnd, 0);
-			//GetWindowText(hWnd, LPTSTR lpString, 255);
-			HWND IniciarSesion = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_INFORMACIONVENDEDOR), NULL, callback3);
-			ShowWindow(IniciarSesion, SW_SHOW);
-			UpdateWindow(IniciarSesion);
+			char nombrecondicion[255];
+			char contraseñacondicion[255];
+			GetDlgItemText(hWnd, TXT_USUARIOINICIAR, nombrecondicion, 255);
+			GetDlgItemText(hWnd, TXT_PASSWORDINICIAR, contraseñacondicion, 255);
+			bool encontrarUsuario=buscarUsuario(usuario->nombreusuario, usuario->contraseña, nombrecondicion, contraseñacondicion);
+			if (buscarUsuario(usuario->nombreusuario, usuario->contraseña, nombrecondicion, contraseñacondicion) == true) {
+				EndDialog(hWnd, 0);
+				HWND IniciarSesion = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_INFORMACIONVENDEDOR), NULL, callback3);
+				ShowWindow(IniciarSesion, SW_SHOW);
+				UpdateWindow(IniciarSesion);
+			}
+			else {
+				MessageBox(0, "Datos incorrectos", "Error", MB_OK | MB_ICONINFORMATION);
+			}
 			break;
 		}
 		case BTN_SALIR1: {
@@ -349,6 +434,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR cmd, int 
 	ZeroMemory(&msg, sizeof(MSG));
 	//Mostrar la ventana
 	ShowWindow(hHome, showCmd);
+	UpdateWindow(hHome);
 	while (GetMessage(&msg, NULL, NULL, NULL)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -357,17 +443,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR cmd, int 
 } 
 
 //funciones
-/*Productos* nuevoProducto(string nombre, int cantidad, string foto, string foto2, int codigoproducto, string marca, string descripcion, float monto) {
-	Productos* producto = new Productos;
-	strcpy_s(producto->nombre, 255, nombre.c_str());
-	strcpy_s(producto->foto, 255, foto.c_str());
-	strcpy_s(producto->foto2, 255, foto2.c_str());
-	producto->cantidad = cantidad;
-	producto->codigoproducto = codigoproducto;
-	strcpy_s(producto->marca, 255, marca.c_str());
-	strcpy_s(producto->descripcion, 255, descripcion.c_str());
-	producto->monto = monto;
-	producto->anterior = NULL;
+Productos* nuevoProducto(Productos*producto) {
+	if (origenProductos == NULL) {
+		origenProductos =producto;
+		producto->anterior = NULL;
+	}
+	else {
+	Productos* indice = origenProductos;
+		while (indice->siguiente != NULL)
+		indice = indice->siguiente;
+		indice->siguiente = producto;
+		producto->anterior = indice;
+	}
 	producto->siguiente = NULL;
 	return producto;
 }
@@ -376,19 +463,24 @@ Envios* nuevoEnvio(string direccion, string fechadeenvio, string estatusdelenvio
 	strcpy_s(envio->direccion, 255, direccion.c_str());
 	strcpy_s(envio->fechadeenvio, 255, fechadeenvio.c_str());
 	strcpy_s(envio->estatusdelenvio, 255, estatusdelenvio.c_str());
-	envio->anterior = NULL;
+	if (origenEnvios == NULL) {
+		origenEnvios = envio;
+		envio->anterior = NULL;
+	}
+	else {
+		Envios* indice = origenEnvios;
+		while (indice->siguiente != NULL)
+			indice = indice->siguiente;
+		indice->siguiente = envio;
+		envio->anterior = indice;
+	}
 	envio->siguiente = NULL;
 	return envio;
-}*/
-Usuarios* nuevoUsuario(Usuarios*usuario) {
-	/*strcpy_s(usuario->nombreusuario, 255, nombreusuario.c_str());
-	strcpy_s(usuario->contraseña, 255, contraseña.c_str());
-	strcpy_s(usuario->nombrevendedor, 255, nombrevendedor.c_str());
-	strcpy_s(usuario->nombrevendedor, 255, nombrevendedor.c_str());
-	strcpy_s(usuario->aliasempresa, 255, aliasempresa.c_str());
-	strcpy_s(usuario->fotovendedor, 255, fotovendedor.c_str());*/
+}
+Usuarios* nuevoUsuario(Usuarios* usuario) {
 	if (origenUsuarios == NULL) {
 		origenUsuarios = usuario;
+		usuario->anterior = NULL;
 	}
 	else {
 		Usuarios* indice = origenUsuarios;
@@ -397,9 +489,35 @@ Usuarios* nuevoUsuario(Usuarios*usuario) {
 		indice->siguiente = usuario;
 		usuario->anterior = indice;
 	}
-	usuario->anterior = NULL;
 	usuario->siguiente = NULL;
 	return usuario;
+}
+bool buscarUsuario(string nombreusuario, string contraseña,string nombrecondicion, string contraseñacondicion) {
+	Usuarios* indice = origenUsuarios;
+	while (indice != NULL) {
+		if (strcmp(indice->nombreusuario, nombrecondicion.c_str()) == 0 && strcmp(indice->contraseña, contraseñacondicion.c_str()) == 0) {
+			return true;
+			break;
+		}
+		indice = indice->siguiente;
+	}
+	return false;
+}
+bool buscarProducto(string nombre) {
+	if (origenProductos == NULL) {
+		return false;
+	}
+	else{
+		Productos* indice = origenProductos;
+		while (indice != NULL) {
+			if (strcmp(indice->nombre, nombre.c_str()) == 0) {
+				return true;
+				break;
+			}
+			indice = indice->siguiente;
+		}
+		return false;
+	}
 }
 void agregarproductoalinicio(Productos* producto) {
 	if (origenProductos == NULL) {
@@ -442,27 +560,16 @@ void agregarproductoalmedio(Productos* producto, string nombre) {
 		}
 	}
 }
-void agregarproductoalfinal(Productos* producto) {
+void borrarproductoalmedio(string nombre) {
 	if (origenProductos == NULL) {
-		origenProductos = producto;
-	}
-	else {
-		Productos* indice = origenProductos;
-		while (indice->siguiente != NULL)
-			indice = indice->siguiente;
-		indice->siguiente = producto;
-		producto->anterior = indice;
-	}
-}
-void borraralumnoalmedio(string nombre) {
-	if (origenProductos == NULL) {
+		MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
 		return;
 	}
 	else {
 		Productos* indice = origenProductos;
 		bool encontrado = false;
 		while (indice != NULL) {
-			if (strcpy_s(indice->nombre,nombre.c_str()) == 0) {
+			if (strcmp(indice->nombre,nombre.c_str()) == 0) {
 				encontrado = true;
 				break;
 			}
@@ -491,7 +598,7 @@ void borraralumnoalmedio(string nombre) {
 		}
 	}
 }
-void borraralumnoalfinal() {
+void borrarproductoalfinal() {
 	if (origenProductos == NULL) {
 		return;
 	}
@@ -566,7 +673,7 @@ void leerarchivoproductos() {
 			variabledearchivo.read(reinterpret_cast<char*>(lectura), sizeof(Productos));
 			lectura->siguiente = NULL;
 			lectura->anterior = NULL;
-			agregarproductoalfinal(lectura);
+			nuevoProducto(lectura);
 			bytes = bytes + sizeof(Productos);
 		}
 		variabledearchivo.close();
@@ -575,7 +682,7 @@ void leerarchivoproductos() {
 		cout << "Error al abrir el archivo" << endl;
 	}
 }
-void imprime(Productos* lista) {
+/*void imprime(Productos* lista) {
 	Productos* indice = lista;
 	while (indice != NULL) {
 		cout << "Nombre del producto: " << indice->nombre << endl;
@@ -589,12 +696,11 @@ void imprime(Productos* lista) {
 		cout << "---------------------------" << endl;
 		indice = indice->siguiente;
 	}
-}
+}*/
 bool soloLetras(string str) {
 	int tam = str.length();
 	for (int i = 0; i < tam; i++) {
-		if ((str[i] < 'a' || str[i] > 'z') &&
-			(str[i] < 'A' || str[i] > 'Z')) {
+		if ((str[i] < 'a' || str[i] > 'z') &&(str[i] < 'A' || str[i] > 'Z') && (str[i] < ' ' || str[i] > ' ') ) {
 			return false;
 		}
 	}
