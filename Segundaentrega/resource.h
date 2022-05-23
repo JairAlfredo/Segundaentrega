@@ -47,7 +47,6 @@
 #define IDC_COMBO1                      1015
 #define IDCANCELAR                      1016
 #define IDASIGNAR                       1017
-#define IDC_CARGAR1                     1021
 #define BTN_CARGARIMAGEN                1021
 #define BTN_CARGARIMAGEN2               1022
 #define BTN_ELIMINARPRODUCTO            1023
@@ -87,6 +86,10 @@
 #define TXT_EDITARPRODUCTO              1062
 #define TXT_NOMBREEDITADO               1064
 #define TXT_MARCAEDITADA                1065
+#define LB_CARACTERISTICAS2             1067
+#define LB_PRODUCTOSDADOSDEALTA         1068
+#define BTN_MISCARACTERISTICAS          1069
+#define LB_PRODUCTOSDADOSDEALTA2        1070
 #define ID_INFORMACI32771               32771
 #define ID_INFORMACI32772               32772
 #define ID_INFORMACI32773               32773
@@ -113,7 +116,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1066
+#define _APS_NEXT_CONTROL_VALUE         1070
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

@@ -63,6 +63,14 @@ bool fechaMenorAHoy(SYSTEMTIME hoy, SYSTEMTIME fecha);
 //callbacks
 BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
+	case WM_INITDIALOG: {
+		Productos* indice = origenProductos;
+		while (indice != NULL) {
+			SendDlgItemMessage(hWnd, LB_PRODUCTOSDADOSDEALTA, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
+			indice = indice->siguiente;
+		}
+		break; 
+	}
 	case WM_COMMAND: {
 		switch (LOWORD(wParam)) {
 		//Ventana informacion del vendedor
@@ -242,12 +250,6 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			GetDlgItemText(hWnd, TXT_BUSCARNOMBRE, nombre, 255);
 			bool encontrarProducto = buscarProducto(nombre);
 			if (buscarProducto(nombre) ==true) {
-			/*SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->nombre);
-				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->cantidad);
-				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->codigoproducto);
-				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->marca);
-				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->descripcion);
-				SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)producto->monto);*/
 				Productos* indice = origenProductos;
 				while (indice != NULL) {
 					char cantidadeditada[255], codigoeditado[255], montoeditado[255];
@@ -266,7 +268,6 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			else {
 				MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
 			}
-
 			break;
 		}
 		//Ventana  editar producto
@@ -300,6 +301,36 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			UpdateWindow(MisProductos);
 			ShowWindow(MisProductos, SW_SHOW);
 			break;
+		}
+		case LB_PRODUCTOSDADOSDEALTA: {
+			if (HIWORD(wParam) == LBN_SELCHANGE) {
+				char nombre[255];
+				SendDlgItemMessage(hWnd, LB_PRODUCTOSDADOSDEALTA, LB_GETTEXT, 0, (LPARAM)nombre);
+				bool encontrarProducto=buscarProducto(nombre);
+				if(buscarProducto(nombre)==true){
+			    Productos* indice = origenProductos;
+				bool encontrado = false;
+				while (indice != NULL) {
+					if (strcmp(indice->nombre, nombre) == 0) {
+						encontrado = true;
+						break;
+					}
+					indice = indice->siguiente;
+				}
+				if (encontrado) {
+					char cantidadeditada[255], codigoeditado[255], montoeditado[255];
+					_itoa_s(indice->cantidad, cantidadeditada, 2);
+					_itoa_s(indice->codigoproducto, codigoeditado, 2);
+					_gcvt_s(montoeditado, 255, indice->monto, 12);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)cantidadeditada);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)codigoeditado);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)indice->marca);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)indice->descripcion);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)montoeditado);
+				}
+				}
+			}
+			break; 
 		}
 		//Ventana comprar productos
 		case ID_COMPRARPRODUCTOS: {
@@ -655,7 +686,7 @@ void modificarproducto(string nombre, int codigoproducto, string marca, string d
 		Productos* indice = origenProductos;
 		bool encontrado = false;
 		while (indice != NULL) {
-			if (strcpy_s(indice->nombre,nombrecondicion.c_str()) == 0) {
+			if (strcmp(indice->nombre,nombrecondicion.c_str()) == 0) {
 				encontrado = true;
 				break;
 			}
