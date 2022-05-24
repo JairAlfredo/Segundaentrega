@@ -28,17 +28,16 @@
 #define DLG_SALIR                       141
 #define IDC_EDIT1                       1000
 #define IDC_EDIT2                       1001
-#define IDC_EDIT5                       1002
 #define BTN_REGISTRARTE                 1002
-#define IDC_EDIT6                       1003
+#define TXT_CALLE                       1002
 #define BTN_REGRESAR                    1003
-#define IDC_EDIT3                       1004
-#define IDC_EDIT7                       1005
+#define TXT_COLONIA                     1003
+#define TXT_CIUDAD                      1004
 #define TXT_CODIGOEDITADO               1005
-#define IDC_EDIT8                       1006
+#define TXT_ESTADO                      1005
+#define TXT_MENSAJE                     1006
 #define TXT_DESCRIPCIONEDITADA          1007
 #define TXT_PASSWORDREGISTRO            1008
-#define IDC_EDIT10                      1008
 #define TXT_MONTOEDITADO                1008
 #define IDC_STATIC4                     1010
 #define BTN_ALTAVENDEDOR                1011
@@ -53,7 +52,7 @@
 #define BTN_CONFIRMAREDICION            1025
 #define BTN_SALIR1                      1026
 #define BTN_REGISTRAR                   1027
-#define IDC_BUTTON1                     1028
+#define BTN_COMPRARPRODUCTO             1028
 #define BTN_SALIR2                      1029
 #define Imagen3                         1033
 #define BTN_INICIARSESION               1035
@@ -62,7 +61,7 @@
 #define PC_INFORMACIONVENDEDOR          1038
 #define PC_PRODUCTO                     1039
 #define TXT_RUTAPRODUCTO                1040
-#define IDC_DATETIMEPICKER              1041
+#define DTP_FECHADEENVIO                1041
 #define TXT_USUARIOREGISTRO             1042
 #define PC_CANCELARENVIO                1043
 #define PC_MISENVIOS                    1044
@@ -88,8 +87,13 @@
 #define TXT_MARCAEDITADA                1065
 #define LB_CARACTERISTICAS2             1067
 #define LB_PRODUCTOSDADOSDEALTA         1068
-#define BTN_MISCARACTERISTICAS          1069
-#define LB_PRODUCTOSDADOSDEALTA2        1070
+#define TXT_CANTIDADENVIOS              1070
+#define TXT_MONTOXPRODUCTO              1071
+#define LB_PRODUCTOSDISPONIBLES         1072
+#define LB_MISENVIOS                    1073
+#define LB_EDITARENVIO                  1075
+#define IDC_LIST1                       1076
+#define LB_CANCELARENVIO                1076
 #define ID_INFORMACI32771               32771
 #define ID_INFORMACI32772               32772
 #define ID_INFORMACI32773               32773
@@ -116,7 +120,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1070
+#define _APS_NEXT_CONTROL_VALUE         1077
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
