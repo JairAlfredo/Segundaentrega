@@ -32,7 +32,7 @@ struct Envios {
 	char estado[255];
 	char mensaje[255];
 	SYSTEMTIME fecha;
-	//char estatusdelenvio[255];
+	char estatusdelenvio[255];
 	Envios* anterior;
 	Envios* siguiente;
 }*origenEnvios;
@@ -93,6 +93,29 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			SendDlgItemMessage(hWnd, LB_PRODUCTOSDISPONIBLES, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
 			SendDlgItemMessage(hWnd, LB_PEDIDOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
 			indice = indice->siguiente;
+		}
+		Envios* indice2 = origenEnvios;
+		while (indice2 != NULL) {
+			//SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
+			char cantidad[255], montoXproducto[255], año [255],mes[255] ,dia[255];
+			_itoa_s(indice2->cantidad, cantidad, sizeof(indice2->cantidad));
+			_gcvt_s(montoXproducto, 255, indice2->montoXproducto, 7);
+			//_itoa_s(indice2->fecha.wYear, año , sizeof(indice2->fecha.wYear));
+			//_itoa_s(indice2->fecha.wMonth, mes, sizeof(indice2->fecha.wMonth));
+			//_itoa_s(indice2->fecha.wDay, dia, sizeof(indice2->fecha.wDay));
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)cantidad);
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)montoXproducto);
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice2->calle);
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice2->colonia);
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice2->ciudad);
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice2->estado);
+			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice2->mensaje);
+			//SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)año);
+			//SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)mes);
+			//SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)dia);
+			//SendDlgItemMessage(hWnd, LB_LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice2->estatusdelenvio);
+			
+			indice2 = indice2->siguiente;
 		}
 	}
 	case WM_COMMAND: {
@@ -569,7 +592,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				nuevoEnvio(envio);
 			}
 			break;
-								}
+		}
 		//Ventana cancelar envio
 		case ID_CANCELARUNENVIO: {
 			EndDialog(hWnd, 0);
@@ -600,17 +623,20 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 						indice = indice->siguiente;
 					}
 					if (encontrado) {
-						/*char cantidad[255];
-						char codigoeditado[255];
-						char montoeditado[255];
+						char cantidad[255];
+						char montoXproducto[255];
 						_itoa_s(indice->cantidad, cantidad, sizeof(indice->cantidad));
-						_itoa_s(indice->codigoproducto, codigoeditado, sizeof(indice->codigoproducto));
-						_gcvt_s(montoeditado, 255, indice->monto, 12);
+						_gcvt_s(montoXproducto, 255, indice->montoXproducto, 12);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->nombre); 
 						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)cantidad);
-						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)codigoeditado);
-						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->marca);
-						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->descripcion);
-						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)montoeditado);*/
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)montoXproducto);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->calle);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->colonia);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->ciudad);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->estado);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->mensaje);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)&indice->fecha);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->estatusdelenvio);
 
 					}
 				}
