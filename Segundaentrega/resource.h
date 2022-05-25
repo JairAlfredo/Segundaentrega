@@ -51,6 +51,7 @@
 #define BTN_ELIMINARPRODUCTO            1023
 #define BTN_CONFIRMAREDICION            1025
 #define BTN_SALIR1                      1026
+#define BTN_MOSTRARCARACTERISTICASEDITAR 1026
 #define BTN_REGISTRAR                   1027
 #define BTN_COMPRARPRODUCTO             1028
 #define BTN_SALIR2                      1029
@@ -117,6 +118,9 @@
 #define ID_INFORMACIONVENDEDOR          32789
 #define ID_SALIRMENU                    32790
 #define ID_ABRIR                        32792
+#define ID_ABRIR_USUARIOS               32793
+#define ID_ABRIR_PRODUCTOS              32794
+#define ID_ABRIR_ENVIOS                 32795
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -125,7 +129,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        142
-#define _APS_NEXT_COMMAND_VALUE         32793
+#define _APS_NEXT_COMMAND_VALUE         32796
 #define _APS_NEXT_CONTROL_VALUE         1082
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

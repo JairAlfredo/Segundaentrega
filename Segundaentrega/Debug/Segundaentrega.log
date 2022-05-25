@@ -1,14 +1,20 @@
 ﻿  Segundaentrega.cpp
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(127,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(129,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
 C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(229,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(260,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(288,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(383,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(452,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(485,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(110,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(212,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(244,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(439,11): warning C4101: 'hf': unreferenced local variable
-C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(937,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(269,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(300,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(328,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(423,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(527,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(561,16): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(658,33): warning C4805: '==': unsafe mix of type 'BOOL' and type 'bool' in operation
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(112,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(216,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(252,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(284,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(514,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(645,11): warning C4101: 'hf': unreferenced local variable
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(877,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(1077,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+C:\Users\Usuario\source\repos\Segundaentrega\Segundaentrega\Segundaentrega.cpp(1187,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
   Segundaentrega.vcxproj -> C:\Users\Usuario\source\repos\Segundaentrega\Debug\Segundaentrega.exe

@@ -56,6 +56,8 @@ Usuarios*nuevoUsuario(Usuarios* usuario);
 bool buscarUsuarioycontraseña(string nombreusuario,string contraseña, string nombrecondicion,string contraseñacondicion);
 bool buscarUsuario(string nombrecondicion);
 void modificarInformacionvendedor(string nombreoriginal, string nombrevendedoreditado, string aliasempresaeditado, string fotoeditada);
+void guardararchivousuarios();
+void leerarchivousuarios();
 
 //Funciones de producto
 Productos* nuevoProducto(Productos* producto);
@@ -71,6 +73,8 @@ void leerarchivoproductos();
 Envios* nuevoEnvio(Envios* envio);
 void borrarenvioalmedio(string nombre);
 bool buscarEnvio(string nombre);
+void guardararchivoenvios();
+void leerarchivoenvios();
 
 //Funciones adicionales
 bool soloLetras(string str);
@@ -98,8 +102,6 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		case ID_INFORMACIONVENDEDOR: {
 			EndDialog(hWnd, 0);
 			HWND InformacionVendedor = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_INFORMACIONVENDEDOR), NULL, callback3);
-			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, usuario->fotovendedor, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
-			SendDlgItemMessage(hWnd, PC_INFORMACIONVENDEDOR, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
 			UpdateWindow(InformacionVendedor);
 			ShowWindow(InformacionVendedor, SW_SHOW);
 			break;
@@ -136,25 +138,37 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}	
 		case BTN_ALTAVENDEDOR: {
-			GetDlgItemText(hWnd, TXT_NOMBREDELVENDEDOR, usuario->nombrevendedor, 255);
-			GetDlgItemText(hWnd, TXT_ALIASDELAEMPRESA, usuario->aliasempresa, 255);
-			GetDlgItemText(hWnd, TXT_RUTAVENDEDOR, usuario->fotovendedor, 255);
-			if (string(usuario->nombrevendedor) == ("") && string(usuario->aliasempresa) == ("")) {
+			char nombrevendedor[255], aliasempresa[255], foto[255];
+			GetDlgItemText(hWnd, TXT_NOMBREDELVENDEDOR, nombrevendedor, 255);
+			GetDlgItemText(hWnd, TXT_ALIASDELAEMPRESA, aliasempresa, 255);
+			GetDlgItemText(hWnd, TXT_RUTAVENDEDOR, foto, 255);
+			if (string(nombrevendedor) == ("") && string(aliasempresa) == ("")) {
 				MessageBox(NULL, "Campos vacios", "Error", MB_OK | MB_ICONINFORMATION);
 			}
-			else if (string(usuario->nombrevendedor) == ("")) {
+			else if (string(nombrevendedor) == ("")) {
 				MessageBox(NULL, "Nombre del vendedor vacio", "Error", MB_OK | MB_ICONINFORMATION);
 			}
-			else if (string(usuario->aliasempresa) == ("")) {
+			else if (string(aliasempresa) == ("")) {
 				MessageBox(NULL, "Alias de la empresa vacio", "Error", MB_OK | MB_ICONINFORMATION);
 			}
-			else if(string(usuario->fotovendedor) == ("")){
+			else if(string(foto) == ("")){
 				MessageBox(NULL, "No eligio archivo", "Error", MB_OK | MB_ICONINFORMATION);
 			}
 			else {
-				bool esLetras = soloLetras(usuario->nombrevendedor);
-				if (soloLetras(usuario->nombrevendedor) == true) {
-					nuevoUsuario(usuario); //Se guardan los datos del usuario
+				bool esLetras = soloLetras(nombrevendedor);
+				bool encontrarUsuario = buscarUsuario(usuario->nombreusuario);
+				if (soloLetras(nombrevendedor) == true&& buscarUsuario(usuario->nombreusuario)==true) {
+					Usuarios* indice = origenUsuarios;
+					while (indice != NULL) {
+						if (strcmp(indice->nombreusuario, usuario->nombreusuario) == 0) {
+							strcpy_s(usuario->nombrevendedor, nombrevendedor);
+							strcpy_s(usuario->aliasempresa, aliasempresa);
+							strcpy_s(usuario->fotovendedor, foto);
+							break;
+						}
+						indice = indice->siguiente;
+					}
+					 //Se guardan los datos del usuario
 					MessageBox(NULL, "Ya puedes empezar a comprar o vender", "Aviso", MB_OK);
 				}
 				else {
@@ -195,6 +209,32 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				}
 			}
 			break; 
+		}
+		case ID_ABRIR_USUARIOS: {
+			OPENFILENAME ofn; // common dialog box structure
+			char szFile[260]; // buffer for file name
+			HANDLE hf; // file handle
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
+			// use the contents of szFile to initialize itself
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "Texto\0*.bin*";
+			ofn.nFilterIndex = 0;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			if (GetOpenFileName(&ofn) == true) {
+				ifstream leer;
+				leer.open(szFile, ios::in || ios::binary);
+				if (leer.is_open()) {
+					leerarchivousuarios();
+				}
+				leer.close();
+			}
+			break;
 		}
 
 		////////////////////////PRODUCTOS////////////////////////
@@ -387,6 +427,41 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			//string nombre, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion
 			break;
 		}
+		case BTN_MOSTRARCARACTERISTICASEDITAR: {
+			char nombre[255];
+			GetDlgItemText(hWnd, TXT_EDITARPRODUCTO, nombre, 255);
+			bool encontrarProducto = buscarProducto(nombre);
+			if (buscarProducto(nombre) == true) {
+				Productos* indice = origenProductos;
+				bool encontrado = false;
+				while (indice != NULL) {
+					if (strcmp(indice->nombre, nombre) == 0) {
+						encontrado = true;
+						break;
+					}
+					indice = indice->siguiente;
+				}
+				if (encontrado) {
+					char codigoeditado[255], montoeditado[255];
+					_itoa_s(indice->codigoproducto, codigoeditado, sizeof(indice->codigoproducto));
+					_gcvt_s(montoeditado, 255, indice->monto, 7);
+					
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
+				
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)codigoeditado);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)indice->marca);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)indice->descripcion);
+					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_ADDSTRING, 0, (LPARAM)montoeditado);
+				}
+			}
+			else {
+				MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			break;
+		}
 		//Ventana mostrar productos
 		case ID_PRODUCTOS_MISPRODUCTOS: {
 			EndDialog(hWnd, 0);
@@ -433,7 +508,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			}
 			break; 
 		}
-		case ID_ABRIR: {
+		case ID_ABRIR_PRODUCTOS: {
 			OPENFILENAME ofn; // common dialog box structure
 			char szFile[260]; // buffer for file name
 			HANDLE hf; // file handle
@@ -459,6 +534,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			}
 			break;
 		}
+
 		////////////////////////ENVIOS////////////////////////
 		//Ventana comprar productos
 		case ID_COMPRARPRODUCTOS: {
@@ -563,6 +639,32 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(MisEnvios, SW_SHOW);
 			break;
 		}
+		case ID_ABRIR_ENVIOS: {
+			OPENFILENAME ofn; // common dialog box structure
+			char szFile[260]; // buffer for file name
+			HANDLE hf; // file handle
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
+			// use the contents of szFile to initialize itself
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "Texto\0*.bin*";
+			ofn.nFilterIndex = 0;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			if (GetOpenFileName(&ofn) == true) {
+				ifstream leer;
+				leer.open(szFile, ios::in || ios::binary);
+				if (leer.is_open()) {
+					leerarchivoenvios();
+				}
+				leer.close();
+			}
+			break;
+		}
 		//Ventana salida
 		case ID_SALIRMENU: {
 			HWND SalirMenu = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_SALIR), NULL, callback3);
@@ -571,7 +673,9 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		case BTN_SALIR2: {
+			guardararchivousuarios();
 			guardararchivoproductos();
+			guardararchivoenvios();
 			PostQuitMessage(0); //Se deben guardar los cambios realizados 
 			break;
 		}
@@ -622,7 +726,7 @@ BOOL CALLBACK cRegistroUsuario(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					MessageBox(NULL, "El nombre de usuario ya existe", "Aviso", MB_OK);
 				}
 				else if (soloLetras(usuario->nombreusuario) == true) {
-					nuevoUsuario(usuario); //Se guardan los datos del usuario
+					nuevoUsuario(usuario);//Se guardan los datos del usuario
 					MessageBox(NULL, "Se ha generado su cuenta", "Aviso", MB_OK);
 				}
 				else {
@@ -750,7 +854,43 @@ bool buscarUsuario(string nombrecondicion) {
 	return false;
 }
 }
-
+void guardararchivousuarios() {
+	ofstream variablearchivo;
+	variablearchivo.open("C:\\Users\\Usuario\\source\\repos\\Segundaentrega\\Segundaentrega\\usuarios.bin", ios::binary | ios::trunc);
+	if (variablearchivo.is_open()) {
+		Usuarios* indice = origenUsuarios;
+		while (indice != NULL) {
+			variablearchivo.write((char*)indice, sizeof(Usuarios));
+			indice = indice->siguiente;
+		}
+		variablearchivo.close();
+	}
+	else {
+		cout << "No se pudo abrir el archivo" << endl;
+	}
+}
+void leerarchivousuarios() {
+	ifstream variabledearchivo;
+	variabledearchivo.open("C:\\Users\\Usuario\\source\\repos\\Segundaentrega\\Segundaentrega\\usuarios.bin", ios::binary | ios::in);
+	if (variabledearchivo.is_open()) {
+		variabledearchivo.seekg(0, variabledearchivo.end);
+		int pesoarchivo = variabledearchivo.tellg();
+		variabledearchivo.seekg(0, variabledearchivo.beg);
+		int bytes = 0;
+		while (bytes < pesoarchivo) {
+			Usuarios* lectura = new Usuarios;
+			variabledearchivo.read(reinterpret_cast<char*>(lectura), sizeof(Usuarios));
+			lectura->siguiente = NULL;
+			lectura->anterior = NULL;
+			nuevoUsuario(lectura);
+			bytes = bytes + sizeof(Usuarios);
+		}
+		variabledearchivo.close();
+	}
+	else {
+		cout << "Error al abrir el archivo" << endl;
+	}
+}
 void modificarInformacionvendedor(string nombreoriginal,string nombrevendedoreditado, string aliasempresaeditado, string fotoeditada){
 	if (origenUsuarios == NULL) {
 		MessageBox(0, "No se encuentra el usuario", "Error", MB_OK | MB_ICONINFORMATION);
@@ -1024,6 +1164,44 @@ bool buscarEnvio(string nombre) {
 		return false;
 	}
 }
+void guardararchivoenvios(){
+	ofstream variablearchivo;
+	variablearchivo.open("C:\\Users\\Usuario\\source\\repos\\Segundaentrega\\Segundaentrega\\envios.bin", ios::binary | ios::trunc);
+	if (variablearchivo.is_open()) {
+		Envios* indice = origenEnvios;
+		while (indice != NULL) {
+			variablearchivo.write((char*)indice, sizeof(Envios));
+			indice = indice->siguiente;
+		}
+		variablearchivo.close();
+	}
+	else {
+		cout << "No se pudo abrir el archivo" << endl;
+	}
+}
+void leerarchivoenvios() {
+	ifstream variabledearchivo;
+	variabledearchivo.open("C:\\Users\\Usuario\\source\\repos\\Segundaentrega\\Segundaentrega\\envios.bin", ios::binary | ios::in);
+	if (variabledearchivo.is_open()) {
+		variabledearchivo.seekg(0, variabledearchivo.end);
+		int pesoarchivo = variabledearchivo.tellg();
+		variabledearchivo.seekg(0, variabledearchivo.beg);
+		int bytes = 0;
+		while (bytes < pesoarchivo) {
+			Envios* lectura = new Envios;
+			variabledearchivo.read(reinterpret_cast<char*>(lectura), sizeof(Envios));
+			lectura->siguiente = NULL;
+			lectura->anterior = NULL;
+			nuevoEnvio(lectura);
+			bytes = bytes + sizeof(Envios);
+		}
+		variabledearchivo.close();
+	}
+	else {
+		cout << "Error al abrir el archivo" << endl;
+	}
+}
+
 //Funciones adicionales
 bool soloLetras(string str) {
 	int tam = str.length();
