@@ -26,7 +26,7 @@
 #define DLG_EDITARPRODUCTO              139
 #define DLG_MISPRODUCTOS                140
 #define DLG_SALIR                       141
-#define IDC_EDIT1                       1000
+#define TXT_NOMBREDELVENDEDOREDITADO    1000
 #define IDC_EDIT2                       1001
 #define BTN_REGISTRARTE                 1002
 #define TXT_CALLE                       1002
@@ -44,7 +44,7 @@
 #define BTN_EDITARVENDEDOR              1012
 #define LB_CARACTERISTICAS              1013
 #define IDC_COMBO1                      1015
-#define IDCANCELAR                      1016
+#define BTN_CANCELARENVIO               1016
 #define IDASIGNAR                       1017
 #define BTN_CARGARIMAGEN                1021
 #define BTN_CARGARIMAGEN2               1022
@@ -92,8 +92,13 @@
 #define LB_PRODUCTOSDISPONIBLES         1072
 #define LB_MISENVIOS                    1073
 #define LB_EDITARENVIO                  1075
-#define IDC_LIST1                       1076
-#define LB_CANCELARENVIO                1076
+#define LB_DATOSCANCELARENVIO           1076
+#define PC_COMPRARPRODUCTOS             1077
+#define LB_PEDIDOSCANCELARENVIO         1077
+#define PC_EDITARENVIO                  1078
+#define PC_EDITARPRODUCTO               1079
+#define PC_ELIMINARPRODUCTO             1080
+#define PC_MISPRODUCTOS                 1081
 #define ID_INFORMACI32771               32771
 #define ID_INFORMACI32772               32772
 #define ID_INFORMACI32773               32773
@@ -111,6 +116,7 @@
 #define ID_MISENVIOS                    32788
 #define ID_INFORMACIONVENDEDOR          32789
 #define ID_SALIRMENU                    32790
+#define ID_ABRIR                        32792
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -119,8 +125,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        142
-#define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1077
+#define _APS_NEXT_COMMAND_VALUE         32793
+#define _APS_NEXT_CONTROL_VALUE         1082
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

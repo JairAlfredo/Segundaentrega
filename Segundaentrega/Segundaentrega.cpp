@@ -23,6 +23,7 @@ struct Productos {
 	Productos* siguiente;
 }*origenProductos;
 struct Envios {
+	char nombre[255];
 	int cantidad;
 	float montoXproducto;
 	char calle[255];
@@ -30,7 +31,7 @@ struct Envios {
 	char ciudad[255];
 	char estado[255];
 	char mensaje[255];
-	char fechadeenvio[255];
+	SYSTEMTIME fecha;
 	//char estatusdelenvio[255];
 	Envios* anterior;
 	Envios* siguiente;
@@ -54,6 +55,7 @@ Usuarios* usuario = new Usuarios;
 Usuarios*nuevoUsuario(Usuarios* usuario);
 bool buscarUsuarioycontraseña(string nombreusuario,string contraseña, string nombrecondicion,string contraseñacondicion);
 bool buscarUsuario(string nombrecondicion);
+void modificarInformacionvendedor(string nombreoriginal, string nombrevendedoreditado, string aliasempresaeditado, string fotoeditada);
 
 //Funciones de producto
 Productos* nuevoProducto(Productos* producto);
@@ -68,10 +70,11 @@ void leerarchivoproductos();
 //Funciones de envio
 Envios* nuevoEnvio(Envios* envio);
 void borrarenvioalmedio(string nombre);
+bool buscarEnvio(string nombre);
 
 //Funciones adicionales
 bool soloLetras(string str);
-//bool fechaMenorAHoy(SYSTEMTIME hoy, SYSTEMTIME fecha);
+bool fechaMenorAHoy(SYSTEMTIME hoy, SYSTEMTIME fecha);
 /*void agregarproductoalfinal(Productos* producto);*/
 /*void borrarproductoalfinal();*/
 /*void imprime(Productos* lista);*/
@@ -84,13 +87,9 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		while (indice != NULL) {
 			SendDlgItemMessage(hWnd, LB_PRODUCTOSDADOSDEALTA, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
 			SendDlgItemMessage(hWnd, LB_PRODUCTOSDISPONIBLES, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
+			SendDlgItemMessage(hWnd, LB_PEDIDOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
 			indice = indice->siguiente;
 		}
-			/*Envios* indice = origenEnvios;
-			while (indice != NULL) {
-			SendDlgItemMessage(hWnd, LB_MISENVIOS, LB_ADDSTRING, 0, (LPARAM)indice->nombre);
-			indice = indice->siguiente;
-			}*/
 	}
 	case WM_COMMAND: {
 		switch (LOWORD(wParam)) {
@@ -99,6 +98,8 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		case ID_INFORMACIONVENDEDOR: {
 			EndDialog(hWnd, 0);
 			HWND InformacionVendedor = CreateDialog(hInstanceGlobal, MAKEINTRESOURCE(DLG_INFORMACIONVENDEDOR), NULL, callback3);
+			static HBITMAP bmp = (HBITMAP)LoadImage(NULL, usuario->fotovendedor, IMAGE_BITMAP, 150, 200, LR_LOADFROMFILE);
+			SendDlgItemMessage(hWnd, PC_INFORMACIONVENDEDOR, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmp);
 			UpdateWindow(InformacionVendedor);
 			ShowWindow(InformacionVendedor, SW_SHOW);
 			break;
@@ -161,6 +162,39 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				}
 			}
 			break;
+		}
+		case BTN_EDITARVENDEDOR: {
+			char nombreoriginal[255],nombrevendedoreditado[255], aliasempresaeditado[255],fotoeditada[255];
+			GetDlgItemText(hWnd, TXT_NOMBREDELVENDEDOR, nombreoriginal, 255);
+			GetDlgItemText(hWnd, TXT_NOMBREDELVENDEDOREDITADO, nombrevendedoreditado, 255);
+			GetDlgItemText(hWnd, TXT_ALIASDELAEMPRESA, aliasempresaeditado, 255);
+			GetDlgItemText(hWnd, TXT_RUTAVENDEDOR, fotoeditada, 255);
+			if (string(nombreoriginal) == ("") || string(nombrevendedoreditado) == ("") || string(aliasempresaeditado) == ("")) {
+				MessageBox(NULL, "Campos vacios", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(nombreoriginal) == ("")) {
+				MessageBox(NULL, "Nombre del vendedor vacio", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(nombrevendedoreditado) == ("")) {
+				MessageBox(NULL, "Nombre del vendedor para editar vacio", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(aliasempresaeditado) == ("")) {
+				MessageBox(NULL, "Alias de la empresa vacio", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (string(fotoeditada) == ("")) {
+				MessageBox(NULL, "No eligio archivo", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else {
+				bool esLetras = soloLetras(nombrevendedoreditado);
+				if (soloLetras(nombreoriginal) == true&& soloLetras(nombrevendedoreditado) == true) {
+				modificarInformacionvendedor(nombreoriginal,nombrevendedoreditado, aliasempresaeditado,fotoeditada);
+					MessageBox(NULL, "Ya puedes empezar a comprar o vender", "Aviso", MB_OK);
+				}
+				else {
+					MessageBox(NULL, "Los nombres de vendedor solo deben contener letras", "Error", MB_OK | MB_ICONINFORMATION);
+				}
+			}
+			break; 
 		}
 
 		////////////////////////PRODUCTOS////////////////////////
@@ -301,7 +335,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 					char cantidadeditada[255], codigoeditado[255], montoeditado[255];
 					_itoa_s(indice->cantidad, cantidadeditada, sizeof(indice->cantidad));
 					_itoa_s(indice->codigoproducto, codigoeditado, sizeof(indice->codigoproducto));
-					_gcvt_s(montoeditado, 255, indice->monto, 12);
+					_gcvt_s(montoeditado, 255, indice->monto, 7);
 					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
 					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
 					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS, LB_DELETESTRING, 0, 0);
@@ -335,11 +369,21 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			GetDlgItemText(hWnd, TXT_MARCAEDITADA, marcaeditada, 255);
 			GetDlgItemText(hWnd, TXT_DESCRIPCIONEDITADA, descripcioneditada, 255);
 			GetDlgItemText(hWnd, TXT_MONTOEDITADO, montoeditado, 255);
-			int num;
-			float num2;
-			num = atoi(codigoeditado);
-			num2 = atof(montoeditado);
-			modificarproducto(nombreeditado, num,marcaeditada, descripcioneditada, num2, nombreoriginal);
+			bool encontrarProducto = buscarProducto(nombreeditado);
+			if (string(nombreoriginal) == ("") || string(nombreeditado) == ("") || string(codigoeditado) == ("") || string(marcaeditada) == ("") || string(descripcioneditada) == ("") || string(montoeditado) == ("")) {
+				MessageBox(NULL, "Campos vacios", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else if (buscarProducto(nombreeditado) == true) {
+				MessageBox(NULL, "El producto no se debe repetir", "Error", MB_OK | MB_ICONINFORMATION);
+			}
+			else {
+				int num;
+				float num2;
+				num = atoi(codigoeditado);
+				num2 = atof(montoeditado);
+				modificarproducto(nombreeditado, num, marcaeditada, descripcioneditada, num2, nombreoriginal);
+			}
+			
 			//string nombre, int codigoproducto, string marca, string descripcion, float monto, string nombrecondicion
 			break;
 		}
@@ -378,7 +422,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 					char montoeditado[255];
 					_itoa_s(indice->cantidad, cantidad, sizeof(indice->cantidad));
 					_itoa_s(indice->codigoproducto, codigoeditado,sizeof(indice->codigoproducto));
-					_gcvt_s(montoeditado, 255, indice->monto, 12);
+					_gcvt_s(montoeditado, 255, indice->monto, 7);
 					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)cantidad);
 					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)codigoeditado);
 					SendDlgItemMessage(hWnd, LB_CARACTERISTICAS2, LB_ADDSTRING, 0, (LPARAM)indice->marca);
@@ -389,7 +433,32 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			}
 			break; 
 		}
-		
+		case ID_ABRIR: {
+			OPENFILENAME ofn; // common dialog box structure
+			char szFile[260]; // buffer for file name
+			HANDLE hf; // file handle
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			// Set lpstrFile[0] to 0' so that GetOpenFileName does not
+			// use the contents of szFile to initialize itself
+			ofn.lpstrFile[0] = '\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = "Texto\0*.bin*";
+			ofn.nFilterIndex = 0;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+			if (GetOpenFileName(&ofn) == true) {
+				ifstream leer;
+				leer.open(szFile, ios::in || ios::binary);
+				if (leer.is_open()) {
+					leerarchivoproductos();
+				}
+				leer.close();
+			}
+			break;
+		}
 		////////////////////////ENVIOS////////////////////////
 		//Ventana comprar productos
 		case ID_COMPRARPRODUCTOS: {
@@ -399,7 +468,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			ShowWindow(ComprarProductos, SW_SHOW);
 			break;
 		}
-		case BTN_COMPRARPRODUCTO: {
+		case BTN_COMPRARPRODUCTO:  {
 			Envios* envio = new Envios;
 			int num;
 			float num2;
@@ -411,8 +480,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 				GetDlgItemText(hWnd, TXT_CIUDAD, envio->ciudad, 255);
 				GetDlgItemText(hWnd, TXT_ESTADO, envio->estado, 255);
 				GetDlgItemText(hWnd, TXT_MENSAJE, envio->mensaje, 255);
-				SYSTEMTIME fecha;
-				SendDlgItemMessage(hWnd, DTP_FECHADEENVIO, DTM_GETSYSTEMTIME, 0, (LPARAM)&fecha);
+				SendDlgItemMessage(hWnd, DTP_FECHADEENVIO, DTM_GETSYSTEMTIME, 0, (LPARAM)&envio->fecha);
 				num = atoi(cantidad);
 				num2 = atof(montoXproducto);
 				envio->cantidad = num;
@@ -433,6 +501,51 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			UpdateWindow(CancelarEnvio);
 			ShowWindow(CancelarEnvio, SW_SHOW);
 			break;
+		}
+		case LB_PEDIDOSCANCELARENVIO: {
+			if (HIWORD(wParam) == LBN_SELCHANGE) {
+				SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_DELETESTRING, 0, 0);
+				SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_DELETESTRING, 0, 0);
+				SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_DELETESTRING, 0, 0);
+				SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_DELETESTRING, 0, 0);
+				SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_DELETESTRING, 0, 0);
+				char nombre[255];
+				int seleccionado = SendDlgItemMessage(hWnd, LB_PEDIDOSCANCELARENVIO, LB_GETCURSEL, NULL, NULL);
+				SendDlgItemMessage(hWnd, LB_PEDIDOSCANCELARENVIO, LB_GETTEXT, seleccionado, (LPARAM)nombre);
+				bool encontrarEnvio = buscarEnvio(nombre);
+				if (buscarEnvio(nombre) == true) {
+					Envios* indice = origenEnvios;
+					bool encontrado = false;
+					while (indice != NULL) {
+						if (strcmp(indice->nombre, nombre) == 0) {
+							encontrado = true;
+							break;
+						}
+						indice = indice->siguiente;
+					}
+					if (encontrado) {
+						/*char cantidad[255];
+						char codigoeditado[255];
+						char montoeditado[255];
+						_itoa_s(indice->cantidad, cantidad, sizeof(indice->cantidad));
+						_itoa_s(indice->codigoproducto, codigoeditado, sizeof(indice->codigoproducto));
+						_gcvt_s(montoeditado, 255, indice->monto, 12);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)cantidad);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)codigoeditado);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->marca);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)indice->descripcion);
+						SendDlgItemMessage(hWnd, LB_DATOSCANCELARENVIO, LB_ADDSTRING, 0, (LPARAM)montoeditado);*/
+
+					}
+				}
+			}
+			break;
+		}
+		case BTN_CANCELARENVIO: {
+			/*char nombre[255];
+			GetDlgItemText(hWnd, TXT_BUSCARNOMBRE, nombre, 255);
+			borrarusuarioalmedio(nombre);*/
+			break; 
 		}
         //Editar envio
 		case ID_EDITARUNENVIO: {
@@ -458,6 +571,7 @@ BOOL CALLBACK callback3(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		case BTN_SALIR2: {
+			guardararchivoproductos();
 			PostQuitMessage(0); //Se deben guardar los cambios realizados 
 			break;
 		}
@@ -637,6 +751,31 @@ bool buscarUsuario(string nombrecondicion) {
 }
 }
 
+void modificarInformacionvendedor(string nombreoriginal,string nombrevendedoreditado, string aliasempresaeditado, string fotoeditada){
+	if (origenUsuarios == NULL) {
+		MessageBox(0, "No se encuentra el usuario", "Error", MB_OK | MB_ICONINFORMATION);
+		return;
+	}
+	else {
+		Usuarios* indice = origenUsuarios;
+		bool encontrado = false;
+		while (indice != NULL) {
+			if (strcmp(indice->nombrevendedor, nombreoriginal.c_str()) == 0) {
+				encontrado = true;
+				break;
+			}
+			indice = indice->siguiente;
+		}
+		if (encontrado) {
+			strcpy_s(indice->nombrevendedor, nombrevendedoreditado.c_str());
+			strcpy_s(indice->aliasempresa, aliasempresaeditado.c_str());
+			strcpy_s(indice->fotovendedor, fotoeditada.c_str());
+			
+			MessageBox(0, "La informacion de vendedor ha sido modificado", "Aviso", MB_OK);
+		}
+	}
+}
+
 //Funciones de producto
 Productos* nuevoProducto(Productos* producto) {
 	if (origenProductos == NULL) {
@@ -774,11 +913,10 @@ void modificarproducto(string nombre, int codigoproducto, string marca, string d
 			MessageBox(0, "El producto ha sido modificado", "Aviso", MB_OK);
 		}
 	}
-
 }
 void guardararchivoproductos() {
 	ofstream variablearchivo;
-	variablearchivo.open("C:\\Users\\Usuario\\source\\repos\\Primeravance\\productos.bin", ios::binary | ios::trunc);
+	variablearchivo.open("C:\\Users\\Usuario\\source\\repos\\Segundaentrega\\Segundaentrega\\productos.bin", ios::binary | ios::trunc);
 	if (variablearchivo.is_open()) {
 		Productos* indice = origenProductos;
 		while (indice != NULL) {
@@ -793,7 +931,7 @@ void guardararchivoproductos() {
 }
 void leerarchivoproductos() {
 	ifstream variabledearchivo;
-	variabledearchivo.open("C:\\Users\\Usuario\\source\\repos\\Primeravance\\productos.bin", ios::binary | ios::in);
+	variabledearchivo.open("C:\\Users\\Usuario\\source\\repos\\Segundaentrega\\Segundaentrega\\productos.bin", ios::binary | ios::in); 
 	if (variabledearchivo.is_open()) {
 		variabledearchivo.seekg(0, variabledearchivo.end);
 		int pesoarchivo = variabledearchivo.tellg();
@@ -831,9 +969,61 @@ Envios* nuevoEnvio(Envios* envio) {
 	return envio;
 }
 void borrarenvioalmedio(string nombre){
-
+		if (origenProductos == NULL) {
+			MessageBox(0, "No se encuentra el producto ", "Error", MB_OK | MB_ICONINFORMATION);
+			return;
+		}
+		else {
+			Productos* indice = origenProductos;
+			bool encontrado = false;
+			while (indice != NULL) {
+				if (strcmp(indice->nombre, nombre.c_str()) == 0) {
+					encontrado = true;
+					break;
+				}
+				indice = indice->siguiente;
+			}
+			if (encontrado) {
+				if (indice->anterior == NULL) {
+					origenProductos = indice->siguiente;
+					delete indice;
+					MessageBox(0, "Se ha borrado el producto ", "Aviso", MB_OK);
+				}
+				else {
+					if (indice->siguiente == NULL) {
+						Productos* productoanterior = indice->anterior;
+						productoanterior->siguiente = NULL;
+						delete indice;
+						MessageBox(0, "Se ha borrado el producto ", "Aviso", MB_OK);
+					}
+					else {
+						Productos* productoanterior = indice->anterior;
+						Productos* productosiguiente = indice->siguiente;
+						productoanterior->siguiente = productosiguiente;
+						productosiguiente->anterior = productoanterior;
+						delete indice;
+						MessageBox(0, "Se ha borrado el producto ", "Aviso", MB_OK);
+					}
+				}
+			}
+		}
 }
-
+bool buscarEnvio(string nombre) {
+	if (origenEnvios == NULL) {
+		return false;
+	}
+	else {
+		Envios* indice = origenEnvios;
+		while (indice != NULL) {
+			if (strcmp(indice->nombre, nombre.c_str()) == 0) {
+				return true;
+				break;
+			}
+			indice = indice->siguiente;
+		}
+		return false;
+	}
+}
 //Funciones adicionales
 bool soloLetras(string str) {
 	int tam = str.length();
@@ -844,7 +1034,7 @@ bool soloLetras(string str) {
 	}
 	return true;
 }
-/*bool fechaMenorAHoy(SYSTEMTIME hoy, SYSTEMTIME fecha) {
+bool fechaMenorAHoy(SYSTEMTIME hoy, SYSTEMTIME fecha) {
 	if (fecha.wYear < hoy.wYear) {
 		return true;
 	}
@@ -856,6 +1046,15 @@ bool soloLetras(string str) {
 	}
 
 	return false;
+}
+/*SYSTEMTIME hoy;
+GetLocalTime(&hoy);
+
+if (fechaMenorAHoy(hoy, fecha)) {
+	MessageBox(0, L"Fecha menor a hoy", L"Aviso", MB_OK);
+}
+else {
+	MessageBox(0, L"Fecha igual o mayor a hoy", L"Aviso", MB_OK);
 }*/
 /*void borrarproductoalfinal() {
 	if (origenProductos == NULL) {
